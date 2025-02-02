@@ -35,6 +35,6 @@ build/
 mvnw
 mvnw.cmd
 
-.mvn/*
+.mvn
 
 /src/test/*
