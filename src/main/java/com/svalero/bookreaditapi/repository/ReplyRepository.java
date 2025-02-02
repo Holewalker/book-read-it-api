@@ -15,7 +15,7 @@ public interface ReplyRepository extends CrudRepository<Reply, Long> {
 
     List<Reply> findByUserReply(User userReply);
 
-    List<Reply> findByPostReply(@NotNull Post postReply);
+    //List<Reply> findByPostReply(@NotNull Post postReply);
     List<Reply> findByPostReplyOrderByDateDesc(@NotNull Post postReply);
 
 }

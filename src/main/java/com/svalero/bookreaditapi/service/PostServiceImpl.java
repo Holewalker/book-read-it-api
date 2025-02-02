@@ -70,7 +70,6 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post modifyPost(long id, Post newPost) throws PostNotFoundException {
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         Post existingPost = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
         logger.info("Existing Post: " + existingPost);
         logger.info("New Post " + newPost);

@@ -9,8 +9,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.ToString;
-
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
