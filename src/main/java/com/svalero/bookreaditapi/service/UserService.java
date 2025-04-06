@@ -1,23 +1,96 @@
 package com.svalero.bookreaditapi.service;
 
+import com.svalero.bookreaditapi.domain.DTO.UserDTO;
 import com.svalero.bookreaditapi.domain.User;
-import com.svalero.bookreaditapi.domain.dto.UserDTO;
-import com.svalero.bookreaditapi.exception.UserNotFoundException;
+import com.svalero.bookreaditapi.repository.UserRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-public interface UserService {
+@Service
+public class UserService {
 
-    List<User> findAll();
+    @Autowired
+    private UserRepository userRepository;
 
-    User findById(long id) throws UserNotFoundException;
+    @Autowired
+    private ModelMapper modelMapper;
 
-    User findByUserName(String username);
+    public UserDTO createUser(User user) {
+        user.setUserId(UUID.randomUUID().toString());
+        userRepository.save(user);
+        return modelMapper.map(user, UserDTO.class);
+    }
 
-    User addUser(UserDTO userDTO);
+    public Optional<UserDTO> getUserById(String userId) {
+        return userRepository.findById(userId)
+                .map(user -> modelMapper.map(user, UserDTO.class));
+    }
 
-    boolean deleteUser(long id) throws  UserNotFoundException;
+    public Optional<UserDTO> getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(user -> modelMapper.map(user, UserDTO.class));
+    }
 
-    User modifyUser(long id, User newUser) throws UserNotFoundException;
+    public Optional<UserDTO> getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> modelMapper.map(user, UserDTO.class));
+    }
 
+    public List<UserDTO> getAllUsers() {
+        List<UserDTO> result = new ArrayList<>();
+        userRepository.findAll().forEach(user ->
+            result.add(modelMapper.map(user, UserDTO.class))
+        );
+        return result;
+    }
+
+    public void deleteUser(String userId) {
+        userRepository.deleteById(userId);
+    }
+
+    public void followBook(String userId, String bookId) {
+        userRepository.findById(userId).ifPresent(user -> {
+            List<String> books = Optional.ofNullable(user.getFollowedBookIds()).orElse(new ArrayList<>());
+            if (!books.contains(bookId)) {
+                books.add(bookId);
+                user.setFollowedBookIds(books);
+                userRepository.save(user);
+            }
+        });
+    }
+
+    public void unfollowBook(String userId, String bookId) {
+        userRepository.findById(userId).ifPresent(user -> {
+            List<String> books = Optional.ofNullable(user.getFollowedBookIds()).orElse(new ArrayList<>());
+            books.remove(bookId);
+            user.setFollowedBookIds(books);
+            userRepository.save(user);
+        });
+    }
+
+    public void followTag(String userId, String tag) {
+        userRepository.findById(userId).ifPresent(user -> {
+            List<String> tags = Optional.ofNullable(user.getFollowedTags()).orElse(new ArrayList<>());
+            if (!tags.contains(tag)) {
+                tags.add(tag);
+                user.setFollowedTags(tags);
+                userRepository.save(user);
+            }
+        });
+    }
+
+    public void unfollowTag(String userId, String tag) {
+        userRepository.findById(userId).ifPresent(user -> {
+            List<String> tags = Optional.ofNullable(user.getFollowedTags()).orElse(new ArrayList<>());
+            tags.remove(tag);
+            user.setFollowedTags(tags);
+            userRepository.save(user);
+        });
+    }
 }
