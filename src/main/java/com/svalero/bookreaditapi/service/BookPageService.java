@@ -29,6 +29,9 @@ public class BookPageService {
     }
 
     public List<BookPage> searchByTitle(String title) {
+        if (title == null || title.isBlank()) {
+            return List.of();
+        }
         return bookPageRepository.findByTitleContaining(title);
     }
 
