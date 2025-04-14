@@ -2,7 +2,6 @@ package com.svalero.bookreaditapi.controller;
 
 import com.svalero.bookreaditapi.domain.Topic;
 import com.svalero.bookreaditapi.domain.User;
-import com.svalero.bookreaditapi.repository.UserRepository;
 import com.svalero.bookreaditapi.service.RoleValidatorService;
 import com.svalero.bookreaditapi.service.TopicService;
 import com.svalero.bookreaditapi.service.BookPageService;
@@ -42,7 +41,7 @@ public class TopicController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado");
         }
 
-        topic.setCreatorUserId(user.getUserId());
+        topic.setCreatorUserId(user.getId());
         topic.setCreatedAt(System.currentTimeMillis());
 
         Topic created = topicService.createTopic(topic);
@@ -69,7 +68,7 @@ public class TopicController {
         Topic topic = topicService.getTopicById(topicId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getUserId(), List.of("OWNER", "MODERATOR"))) {
+        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getId(), List.of("OWNER", "MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para editar este tema.");
         }
 
@@ -84,12 +83,17 @@ public class TopicController {
         Topic topic = topicService.getTopicById(topicId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getUserId(), List.of("OWNER", "MODERATOR"))) {
+        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getId(), List.of("OWNER", "MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para eliminar este tema.");
         }
 
         topicService.deleteTopic(topicId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public Iterable<Topic> getAllTopics() {
+        return topicService.getAllTopics();
     }
 }
 

@@ -39,8 +39,8 @@ public class CommentController {
     public ResponseEntity<Comment> createComment(@RequestBody Comment comment,
                                                  @AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
-        comment.setCommentId(UUID.randomUUID().toString());
-        comment.setAuthorUserId(user.getUserId());
+        comment.setId(UUID.randomUUID().toString());
+        comment.setAuthorUserId(user.getId());
         comment.setCreatedAt(System.currentTimeMillis());
         commentService.createComment(comment);
         return ResponseEntity.status(HttpStatus.CREATED).body(comment);
@@ -62,7 +62,7 @@ public class CommentController {
         Topic topic = topicService.getTopicById(existing.getTopicId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getUserId(), List.of("OWNER", "MODERATOR"))) {
+        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getId(), List.of("OWNER", "MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para editar comentarios.");
         }
 
@@ -81,7 +81,7 @@ public class CommentController {
         Topic topic = topicService.getTopicById(existing.getTopicId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getUserId(), List.of("OWNER", "MODERATOR"))) {
+        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getId(), List.of("OWNER", "MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para eliminar comentarios.");
         }
 

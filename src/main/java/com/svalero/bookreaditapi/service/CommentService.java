@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -22,7 +21,7 @@ public class CommentService {
     private NotificationService notificationService;
 
 public Comment createComment(Comment comment) {
-    comment.setCommentId(UUID.randomUUID().toString());
+    comment.setId(UUID.randomUUID().toString());
     comment.setCreatedAt(System.currentTimeMillis());
     Comment saved = commentRepository.save(comment);
 
@@ -107,7 +106,7 @@ public Comment createComment(Comment comment) {
 
         for (Comment c : children) {
             CommentTree node = new CommentTree(c);
-            node.setReplies(buildTree(c.getCommentId(), grouped));
+            node.setReplies(buildTree(c.getId(), grouped));
             result.add(node);
         }
 

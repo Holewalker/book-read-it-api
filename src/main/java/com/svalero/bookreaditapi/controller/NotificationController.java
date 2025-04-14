@@ -24,7 +24,7 @@ public class NotificationController {
     @GetMapping
     public List<Notification> getMyNotifications(@AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
-        return notificationService.getNotificationsForUser(user.getUserId());
+        return notificationService.getNotificationsForUser(user.getId());
     }
 
     @PutMapping("/{notificationId}/read")

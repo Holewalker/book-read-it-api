@@ -45,7 +45,7 @@ public class RoleAssignmentController {
 
         // Validación de permisos
         Optional<RoleAssignment> currentUserRole = roleAssignmentRepository
-                .findByBookIdAndUserId(request.getBookId(), currentUser.getUserId());
+                .findByBookIdAndUserId(request.getBookId(), currentUser.getId());
 
         if (currentUserRole.isEmpty() || !currentUserRole.get().getRole().equals("OWNER")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado");
@@ -68,7 +68,7 @@ public class RoleAssignmentController {
         }
 
         // Si no existe, creamos nuevo
-        request.setAssignmentId(UUID.randomUUID().toString());
+        request.setId(UUID.randomUUID().toString());
         roleAssignmentRepository.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(request);
     }
@@ -87,7 +87,7 @@ public class RoleAssignmentController {
     @GetMapping("/me")
     public List<RoleAssignment> getRolesForCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         User currentUser = securityUtils.getCurrentUser(userDetails);
-        return roleAssignmentRepository.findByUserId(currentUser.getUserId());
+        return roleAssignmentRepository.findByUserId(currentUser.getId());
     }
 
     @DeleteMapping
@@ -98,7 +98,7 @@ public class RoleAssignmentController {
         User currentUser = securityUtils.getCurrentUser(userDetails);
 
         Optional<RoleAssignment> currentUserRole = roleAssignmentRepository
-                .findByBookIdAndUserId(bookId, currentUser.getUserId());
+                .findByBookIdAndUserId(bookId, currentUser.getId());
 
         if (currentUserRole.isEmpty() || !currentUserRole.get().getRole().equals("OWNER")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado");
@@ -108,7 +108,7 @@ public class RoleAssignmentController {
                 .findByBookIdAndUserId(bookId, userId);
 
         if (existing.isPresent()) {
-            roleAssignmentRepository.deleteById(existing.get().getAssignmentId());
+            roleAssignmentRepository.deleteById(existing.get().getId());
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();

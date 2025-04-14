@@ -7,18 +7,18 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 @DynamoDBTable(tableName = "RoleAssignments")
 public class RoleAssignment {
 
-    private String assignmentId;
+    private String id;
     private String userId;
     private String bookId;
     private String role; // OWNER, MODERATOR, READER(default)
 
     @DynamoDBHashKey(attributeName = "assignmentId")
-    public String getAssignmentId() {
-        return assignmentId;
+    public String getId() {
+        return id;
     }
 
-    public void setAssignmentId(String assignmentId) {
-        this.assignmentId = assignmentId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @DynamoDBAttribute(attributeName = "userId")

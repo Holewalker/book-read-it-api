@@ -7,7 +7,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 @DynamoDBTable(tableName = "Comments")
 public class Comment {
 
-    private String commentId;
+    private String id;
     private String topicId;
     private String authorUserId;
     private String parentCommentId; // null si es comentario raíz
@@ -15,12 +15,12 @@ public class Comment {
     private Long createdAt;
 
     @DynamoDBHashKey(attributeName = "commentId")
-    public String getCommentId() {
-        return commentId;
+    public String getId() {
+        return id;
     }
 
-    public void setCommentId(String commentId) {
-        this.commentId = commentId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @DynamoDBAttribute(attributeName = "topicId")

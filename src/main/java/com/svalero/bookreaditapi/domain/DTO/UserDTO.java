@@ -12,7 +12,7 @@ public class UserDTO {
     private List<String> followedTags;
 
     public UserDTO(User user) {
-        this.userId = user.getUserId();
+        this.userId = user.getId();
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.followedBookIds = user.getFollowedBookIds();

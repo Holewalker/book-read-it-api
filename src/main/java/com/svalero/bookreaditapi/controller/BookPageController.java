@@ -2,7 +2,6 @@ package com.svalero.bookreaditapi.controller;
 
 import com.svalero.bookreaditapi.domain.BookPage;
 import com.svalero.bookreaditapi.domain.User;
-import com.svalero.bookreaditapi.repository.UserRepository;
 import com.svalero.bookreaditapi.service.BookPageService;
 import com.svalero.bookreaditapi.service.RoleValidatorService;
 import com.svalero.bookreaditapi.util.SecurityUtils;
@@ -33,7 +32,7 @@ public class BookPageController {
     public ResponseEntity<BookPage> createBookPage(@RequestBody BookPage bookPage,
                                                    @AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
-        bookPage.setOwnerUserId(user.getUserId());
+        bookPage.setOwnerUserId(user.getId());
         BookPage created = bookPageService.createBookPage(bookPage);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -63,7 +62,7 @@ public class BookPageController {
         BookPage bookPage = bookPageService.getBookPageById(bookId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
 
-        boolean isOwner = roleValidator.isOwner(bookId, user.getUserId());
+        boolean isOwner = roleValidator.isOwner(bookId, user.getId());
         boolean isAdmin = "ADMIN".equals(user.getRole());
 
         if (!isOwner && !isAdmin) {

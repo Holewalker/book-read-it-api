@@ -16,7 +16,7 @@ public class BookPageService {
     private BookPageRepository bookPageRepository;
 
     public BookPage createBookPage(BookPage bookPage) {
-        bookPage.setBookId(UUID.randomUUID().toString());
+        bookPage.setId(UUID.randomUUID().toString());
         return bookPageRepository.save(bookPage);
     }
 

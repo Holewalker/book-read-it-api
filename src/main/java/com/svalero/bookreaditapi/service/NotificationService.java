@@ -16,7 +16,7 @@ public class NotificationService {
 
     public void createNotification(String userId, String message) {
         Notification notification = new Notification();
-        notification.setNotificationId(UUID.randomUUID().toString());
+        notification.setId(UUID.randomUUID().toString());
         notification.setUserId(userId);
         notification.setMessage(message);
         notification.setRead(false);

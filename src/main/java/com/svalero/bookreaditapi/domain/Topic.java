@@ -7,19 +7,19 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 @DynamoDBTable(tableName = "Topics")
 public class Topic {
 
-    private String topicId;
+    private String id;
     private String bookId;
     private String title;
     private String creatorUserId;
     private long createdAt;
 
     @DynamoDBHashKey(attributeName = "topicId")
-    public String getTopicId() {
-        return topicId;
+    public String getId() {
+        return id;
     }
 
-    public void setTopicId(String topicId) {
-        this.topicId = topicId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @DynamoDBAttribute(attributeName = "bookId")

@@ -7,19 +7,19 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 @DynamoDBTable(tableName = "Notifications")
 public class Notification {
 
-    private String notificationId;
+    private String id;
     private String userId;
     private String message;
     private boolean read;
     private Long createdAt;
 
     @DynamoDBHashKey(attributeName = "notificationId")
-    public String getNotificationId() {
-        return notificationId;
+    public String getId() {
+        return id;
     }
 
-    public void setNotificationId(String notificationId) {
-        this.notificationId = notificationId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @DynamoDBAttribute(attributeName = "userId")

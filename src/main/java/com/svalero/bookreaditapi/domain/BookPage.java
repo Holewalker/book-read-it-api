@@ -9,19 +9,19 @@ import java.util.List;
 @DynamoDBTable(tableName = "BookPages")
 public class BookPage {
 
-    private String bookId;
+    private String id;
     private String isbn;
     private String title;
     private String ownerUserId;
     private List<String> tags;
 
     @DynamoDBHashKey(attributeName = "bookId")
-    public String getBookId() {
-        return bookId;
+    public String getId() {
+        return id;
     }
 
-    public void setBookId(String bookId) {
-        this.bookId = bookId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @DynamoDBAttribute(attributeName = "isbn")

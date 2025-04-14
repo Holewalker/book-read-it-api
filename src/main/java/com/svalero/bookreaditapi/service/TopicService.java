@@ -16,9 +16,13 @@ public class TopicService {
     private TopicRepository topicRepository;
 
     public Topic createTopic(Topic topic) {
-        topic.setTopicId(UUID.randomUUID().toString());
+        topic.setId(UUID.randomUUID().toString());
         topic.setCreatedAt(System.currentTimeMillis());
         return topicRepository.save(topic);
+    }
+
+    public Iterable<Topic> getAllTopics() {
+        return topicRepository.findAll();
     }
 
     public Optional<Topic> getTopicById(String topicId) {

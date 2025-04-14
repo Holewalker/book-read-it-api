@@ -9,7 +9,7 @@ import java.util.List;
 @DynamoDBTable(tableName = "Users")
 public class User {
 
-    private String userId;
+    private String id;
     private String username;
     private String email;
     private List<String> followedBookIds;
@@ -18,12 +18,12 @@ public class User {
     private String role;
 
     @DynamoDBHashKey(attributeName = "userId")
-    public String getUserId() {
-        return userId;
+    public String getId() {
+        return id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @DynamoDBAttribute(attributeName = "username")

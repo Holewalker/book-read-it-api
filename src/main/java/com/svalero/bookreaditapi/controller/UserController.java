@@ -63,7 +63,7 @@ public class UserController {
     public ResponseEntity<Void> followBook(@AuthenticationPrincipal UserDetails userDetails,
                                            @PathVariable String bookId) {
         User user = securityUtils.getCurrentUser(userDetails);
-        userService.followBook(user.getUserId(), bookId);
+        userService.followBook(user.getId(), bookId);
         return ResponseEntity.ok().build();
     }
 
@@ -71,7 +71,7 @@ public class UserController {
     public ResponseEntity<Void> unfollowBook(@AuthenticationPrincipal UserDetails userDetails,
                                              @PathVariable String bookId) {
         User user = securityUtils.getCurrentUser(userDetails);
-        userService.unfollowBook(user.getUserId(), bookId);
+        userService.unfollowBook(user.getId(), bookId);
         return ResponseEntity.ok().build();
     }
 
@@ -80,7 +80,7 @@ public class UserController {
     public ResponseEntity<Void> followTag(@AuthenticationPrincipal UserDetails userDetails,
                                           @PathVariable String tag) {
         User user = securityUtils.getCurrentUser(userDetails);
-        userService.followTag(user.getUserId(), tag);
+        userService.followTag(user.getId(), tag);
         return ResponseEntity.ok().build();
     }
 
@@ -88,7 +88,7 @@ public class UserController {
     public ResponseEntity<Void> unfollowTag(@AuthenticationPrincipal UserDetails userDetails,
                                             @PathVariable String tag) {
         User user = securityUtils.getCurrentUser(userDetails);
-        userService.unfollowTag(user.getUserId(), tag);
+        userService.unfollowTag(user.getId(), tag);
         return ResponseEntity.ok().build();
     }
 
