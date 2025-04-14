@@ -7,18 +7,60 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
 
+
+    @Autowired
+    private TopicService topicService;
     @Autowired
     private CommentRepository commentRepository;
 
-    public Comment createComment(Comment comment) {
-        comment.setCommentId(UUID.randomUUID().toString());
-        comment.setCreatedAt(System.currentTimeMillis());
-        return commentRepository.save(comment);
+    @Autowired
+    private NotificationService notificationService;
+
+public Comment createComment(Comment comment) {
+    comment.setCommentId(UUID.randomUUID().toString());
+    comment.setCreatedAt(System.currentTimeMillis());
+    Comment saved = commentRepository.save(comment);
+
+    Set<String> notifiedUserIds = new HashSet<>();
+
+
+    String parentId = comment.getParentCommentId();
+    if (parentId != null) {
+        commentRepository.findById(parentId).ifPresent(parent -> {
+            if (!parent.getAuthorUserId().equals(comment.getAuthorUserId())) {
+                notifiedUserIds.add(parent.getAuthorUserId());
+            }
+        });
+
+        List<Comment> siblingReplies = commentRepository.findByParentCommentId(parentId);
+        siblingReplies.stream()
+                .map(Comment::getAuthorUserId)
+                .filter(userId -> !userId.equals(comment.getAuthorUserId()))
+                .forEach(notifiedUserIds::add);
     }
+
+    topicService.getTopicById(comment.getTopicId()).ifPresent(topic -> {
+        if (!topic.getCreatorUserId().equals(comment.getAuthorUserId())) {
+            notifiedUserIds.add(topic.getCreatorUserId());
+        }
+    });
+
+    for (String userId : notifiedUserIds) {
+        notificationService.createNotification(
+                userId,
+                "Nuevo comentario en una conversación en la que participas."
+        );
+    }
+
+    return saved;
+}
+
+
 
     public Comment updateComment(Comment comment) {
         return commentRepository.save(comment);
