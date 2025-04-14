@@ -3,10 +3,12 @@ package com.svalero.bookreaditapi.controller;
 import com.svalero.bookreaditapi.domain.DTO.UserDTO;
 import com.svalero.bookreaditapi.domain.User;
 import com.svalero.bookreaditapi.service.UserService;
+import com.svalero.bookreaditapi.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,10 +20,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
-    }
+    @Autowired
+    private SecurityUtils securityUtils;
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDTO> getUser(@PathVariable String userId) {
@@ -44,55 +44,65 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/users/{userId}")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
 
+    // ---- LIBROS SEGUIDOS ----
 
-    @PutMapping("/{userId}/follow-book/{bookId}")
-    public ResponseEntity<Void> followBook(@PathVariable String userId, @PathVariable String bookId) {
-        userService.followBook(userId, bookId);
+    @PutMapping("/me/follow-book/{bookId}")
+    public ResponseEntity<Void> followBook(@AuthenticationPrincipal UserDetails userDetails,
+                                           @PathVariable String bookId) {
+        User user = securityUtils.getCurrentUser(userDetails);
+        userService.followBook(user.getUserId(), bookId);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{userId}/unfollow-book/{bookId}")
-    public ResponseEntity<Void> unfollowBook(@PathVariable String userId, @PathVariable String bookId) {
-        userService.unfollowBook(userId, bookId);
+    @PutMapping("/me/unfollow-book/{bookId}")
+    public ResponseEntity<Void> unfollowBook(@AuthenticationPrincipal UserDetails userDetails,
+                                             @PathVariable String bookId) {
+        User user = securityUtils.getCurrentUser(userDetails);
+        userService.unfollowBook(user.getUserId(), bookId);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{userId}/follow-tag/{tag}")
-    public ResponseEntity<Void> followTag(@PathVariable String userId, @PathVariable String tag) {
-        userService.followTag(userId, tag);
+
+    @PutMapping("/me/follow-tag/{tag}")
+    public ResponseEntity<Void> followTag(@AuthenticationPrincipal UserDetails userDetails,
+                                          @PathVariable String tag) {
+        User user = securityUtils.getCurrentUser(userDetails);
+        userService.followTag(user.getUserId(), tag);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{userId}/unfollow-tag/{tag}")
-    public ResponseEntity<Void> unfollowTag(@PathVariable String userId, @PathVariable String tag) {
-        userService.unfollowTag(userId, tag);
+    @PutMapping("/me/unfollow-tag/{tag}")
+    public ResponseEntity<Void> unfollowTag(@AuthenticationPrincipal UserDetails userDetails,
+                                            @PathVariable String tag) {
+        User user = securityUtils.getCurrentUser(userDetails);
+        userService.unfollowTag(user.getUserId(), tag);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{userId}/followed-books")
-    public ResponseEntity<List<String>> getFollowedBooks(@PathVariable String userId) {
-        return userService.getUserById(userId)
-                .map(user -> ResponseEntity.ok(user.getFollowedBookIds()))
-                .orElse(ResponseEntity.notFound().build());
+    // ---- CONSULTA DE FOLLOW ----
+
+    @GetMapping("/me/followed-books")
+    public ResponseEntity<List<String>> getFollowedBooks(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = securityUtils.getCurrentUser(userDetails);
+        return ResponseEntity.ok(user.getFollowedBookIds());
     }
 
-    @GetMapping("/{userId}/followed-tags")
-    public ResponseEntity<List<String>> getFollowedTags(@PathVariable String userId) {
-        return userService.getUserById(userId)
-                .map(user -> ResponseEntity.ok(user.getFollowedTags()))
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/me/followed-tags")
+    public ResponseEntity<List<String>> getFollowedTags(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = securityUtils.getCurrentUser(userDetails);
+        return ResponseEntity.ok(user.getFollowedTags());
     }
 }
-

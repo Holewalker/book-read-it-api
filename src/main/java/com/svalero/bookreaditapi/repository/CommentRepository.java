@@ -10,4 +10,5 @@ import java.util.List;
 public interface CommentRepository extends CrudRepository<Comment, String> {
     List<Comment> findByTopicId(String topicId); // necesita GSI topicId
     List<Comment> findByParentCommentId(String parentCommentId); // GSI opcional
+
 }

@@ -5,6 +5,7 @@ import com.svalero.bookreaditapi.domain.User;
 import com.svalero.bookreaditapi.repository.UserRepository;
 import com.svalero.bookreaditapi.service.RoleValidatorService;
 import com.svalero.bookreaditapi.service.TopicService;
+import com.svalero.bookreaditapi.service.BookPageService;
 import com.svalero.bookreaditapi.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,10 +25,10 @@ public class TopicController {
     private TopicService topicService;
 
     @Autowired
-    private UserRepository userRepository;
+    private RoleValidatorService roleValidator;
 
     @Autowired
-    private RoleValidatorService roleValidator;
+    private BookPageService bookPageService;
 
     @Autowired
     private SecurityUtils securityUtils;
@@ -36,7 +37,14 @@ public class TopicController {
     public ResponseEntity<Topic> createTopic(@RequestBody Topic topic,
                                              @AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
+
+        if (bookPageService.getBookPageById(topic.getBookId()).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado");
+        }
+
         topic.setCreatorUserId(user.getUserId());
+        topic.setCreatedAt(System.currentTimeMillis());
+
         Topic created = topicService.createTopic(topic);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

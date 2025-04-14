@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -20,12 +20,6 @@ public class UserService {
 
     @Autowired
     private ModelMapper modelMapper;
-
-    public UserDTO createUser(User user) {
-        user.setUserId(UUID.randomUUID().toString());
-        userRepository.save(user);
-        return modelMapper.map(user, UserDTO.class);
-    }
 
     public Optional<UserDTO> getUserById(String userId) {
         return userRepository.findById(userId)
@@ -45,7 +39,7 @@ public class UserService {
     public List<UserDTO> getAllUsers() {
         List<UserDTO> result = new ArrayList<>();
         userRepository.findAll().forEach(user ->
-            result.add(modelMapper.map(user, UserDTO.class))
+                result.add(modelMapper.map(user, UserDTO.class))
         );
         return result;
     }
@@ -55,42 +49,50 @@ public class UserService {
     }
 
     public void followBook(String userId, String bookId) {
-        userRepository.findById(userId).ifPresent(user -> {
-            List<String> books = Optional.ofNullable(user.getFollowedBookIds()).orElse(new ArrayList<>());
-            if (!books.contains(bookId)) {
-                books.add(bookId);
-                user.setFollowedBookIds(books);
-                userRepository.save(user);
-            }
-        });
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+
+        List<String> books = Optional.ofNullable(user.getFollowedBookIds()).orElse(new ArrayList<>());
+        if (!books.contains(bookId)) {
+            books.add(bookId);
+            user.setFollowedBookIds(books);
+            userRepository.save(user);
+        }
     }
 
     public void unfollowBook(String userId, String bookId) {
-        userRepository.findById(userId).ifPresent(user -> {
-            List<String> books = Optional.ofNullable(user.getFollowedBookIds()).orElse(new ArrayList<>());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+
+        List<String> books = Optional.ofNullable(user.getFollowedBookIds()).orElse(new ArrayList<>());
+        if (books.contains(bookId)) {
             books.remove(bookId);
             user.setFollowedBookIds(books);
             userRepository.save(user);
-        });
+        }
     }
 
     public void followTag(String userId, String tag) {
-        userRepository.findById(userId).ifPresent(user -> {
-            List<String> tags = Optional.ofNullable(user.getFollowedTags()).orElse(new ArrayList<>());
-            if (!tags.contains(tag)) {
-                tags.add(tag);
-                user.setFollowedTags(tags);
-                userRepository.save(user);
-            }
-        });
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+        List<String> tags = Optional.ofNullable(user.getFollowedTags()).orElse(new ArrayList<>());
+        if (!tags.contains(tag)) {
+            tags.add(tag);
+            user.setFollowedTags(tags);
+            userRepository.save(user);
+        }
     }
 
+
     public void unfollowTag(String userId, String tag) {
-        userRepository.findById(userId).ifPresent(user -> {
-            List<String> tags = Optional.ofNullable(user.getFollowedTags()).orElse(new ArrayList<>());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+
+        List<String> tags = Optional.ofNullable(user.getFollowedTags()).orElse(new ArrayList<>());
+        if (tags.contains(tag)) {
             tags.remove(tag);
             user.setFollowedTags(tags);
             userRepository.save(user);
-        });
+        }
     }
 }

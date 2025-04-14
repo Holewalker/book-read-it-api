@@ -1,9 +1,9 @@
 package com.svalero.bookreaditapi.controller;
 
 import com.svalero.bookreaditapi.domain.Comment;
+import com.svalero.bookreaditapi.domain.DTO.CommentTree;
 import com.svalero.bookreaditapi.domain.Topic;
 import com.svalero.bookreaditapi.domain.User;
-import com.svalero.bookreaditapi.repository.UserRepository;
 import com.svalero.bookreaditapi.service.CommentService;
 import com.svalero.bookreaditapi.service.RoleValidatorService;
 import com.svalero.bookreaditapi.service.TopicService;
@@ -28,9 +28,6 @@ public class CommentController {
 
     @Autowired
     private TopicService topicService;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private SecurityUtils securityUtils;
@@ -91,4 +88,17 @@ public class CommentController {
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }
+
+
+    @GetMapping("/replies/{parentId}")
+    public ResponseEntity<List<Comment>> getReplies(@PathVariable String parentId) {
+        return ResponseEntity.ok(commentService.getReplies(parentId));
+    }
+
+    @GetMapping("/tree/{topicId}")
+    public ResponseEntity<List<CommentTree>> getCommentTree(@PathVariable String topicId) {
+        List<CommentTree> tree = commentService.getCommentTreeByTopic(topicId);
+        return ResponseEntity.ok(tree);
+    }
+
 }

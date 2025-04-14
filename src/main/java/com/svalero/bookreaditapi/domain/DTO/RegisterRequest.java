@@ -1,8 +1,14 @@
 package com.svalero.bookreaditapi.domain.DTO;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+
 public class RegisterRequest {
+    @NotBlank
     private String username;
+    @Email
     private String email;
+    @NotBlank
     private String password;
 
     public String getUsername() {
