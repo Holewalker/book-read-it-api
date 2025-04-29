@@ -1,8 +1,11 @@
 package com.svalero.bookreaditapi.service;
 
 import com.svalero.bookreaditapi.domain.Comment;
+import com.svalero.bookreaditapi.domain.DTO.CommentDTO;
 import com.svalero.bookreaditapi.domain.DTO.CommentTree;
+import com.svalero.bookreaditapi.domain.User;
 import com.svalero.bookreaditapi.repository.CommentRepository;
+import com.svalero.bookreaditapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,49 +19,49 @@ public class CommentService {
     private TopicService topicService;
     @Autowired
     private CommentRepository commentRepository;
-
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private NotificationService notificationService;
 
-public Comment createComment(Comment comment) {
-    comment.setId(UUID.randomUUID().toString());
-    comment.setCreatedAt(System.currentTimeMillis());
-    Comment saved = commentRepository.save(comment);
+    public Comment createComment(Comment comment) {
+        comment.setId(UUID.randomUUID().toString());
+        comment.setCreatedAt(System.currentTimeMillis());
+        Comment saved = commentRepository.save(comment);
 
-    Set<String> notifiedUserIds = new HashSet<>();
+        Set<String> notifiedUserIds = new HashSet<>();
 
 
-    String parentId = comment.getParentCommentId();
-    if (parentId != null) {
-        commentRepository.findById(parentId).ifPresent(parent -> {
-            if (!parent.getAuthorUserId().equals(comment.getAuthorUserId())) {
-                notifiedUserIds.add(parent.getAuthorUserId());
+        String parentId = comment.getParentCommentId();
+        if (parentId != null) {
+            commentRepository.findById(parentId).ifPresent(parent -> {
+                if (!parent.getAuthorUserId().equals(comment.getAuthorUserId())) {
+                    notifiedUserIds.add(parent.getAuthorUserId());
+                }
+            });
+
+            List<Comment> siblingReplies = commentRepository.findByParentCommentId(parentId);
+            siblingReplies.stream()
+                    .map(Comment::getAuthorUserId)
+                    .filter(userId -> !userId.equals(comment.getAuthorUserId()))
+                    .forEach(notifiedUserIds::add);
+        }
+
+        topicService.getTopicById(comment.getTopicId()).ifPresent(topic -> {
+            if (!topic.getAuthorUserId().equals(comment.getAuthorUserId())) {
+                notifiedUserIds.add(topic.getAuthorUserId());
             }
         });
 
-        List<Comment> siblingReplies = commentRepository.findByParentCommentId(parentId);
-        siblingReplies.stream()
-                .map(Comment::getAuthorUserId)
-                .filter(userId -> !userId.equals(comment.getAuthorUserId()))
-                .forEach(notifiedUserIds::add);
-    }
-
-    topicService.getTopicById(comment.getTopicId()).ifPresent(topic -> {
-        if (!topic.getCreatorUserId().equals(comment.getAuthorUserId())) {
-            notifiedUserIds.add(topic.getCreatorUserId());
+        for (String userId : notifiedUserIds) {
+            notificationService.createNotification(
+                    userId,
+                    "Nuevo comentario en una conversación en la que participas."
+            );
         }
-    });
 
-    for (String userId : notifiedUserIds) {
-        notificationService.createNotification(
-                userId,
-                "Nuevo comentario en una conversación en la que participas."
-        );
+        return saved;
     }
-
-    return saved;
-}
-
 
 
     public Comment updateComment(Comment comment) {
@@ -87,7 +90,6 @@ public Comment createComment(Comment comment) {
 
 
     /// ////////////////////////////comment tree
-
     public List<CommentTree> getCommentTreeByTopic(String topicId) {
         List<Comment> all = getCommentsByTopic(topicId);
 
@@ -105,7 +107,20 @@ public Comment createComment(Comment comment) {
         List<Comment> children = grouped.getOrDefault(parentId, new ArrayList<>());
 
         for (Comment c : children) {
-            CommentTree node = new CommentTree(c);
+            String username = userRepository.findById(c.getAuthorUserId())
+                    .map(User::getUsername)
+                    .orElse("Usuario desconocido");
+
+            CommentDTO dto = new CommentDTO(
+                    c.getId(),
+                    c.getTopicId(),
+                    username,
+                    c.getParentCommentId(),
+                    c.getBody(),
+                    c.getCreatedAt()
+            );
+
+            CommentTree node = new CommentTree(dto);
             node.setReplies(buildTree(c.getId(), grouped));
             result.add(node);
         }

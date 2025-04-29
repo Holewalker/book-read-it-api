@@ -1,6 +1,8 @@
 package com.svalero.bookreaditapi.service;
 
+import com.svalero.bookreaditapi.domain.DTO.TopicDTO;
 import com.svalero.bookreaditapi.domain.Topic;
+import com.svalero.bookreaditapi.repository.CommentRepository;
 import com.svalero.bookreaditapi.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,9 @@ public class TopicService {
 
     @Autowired
     private TopicRepository topicRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     public Topic createTopic(Topic topic) {
         topic.setId(UUID.randomUUID().toString());
@@ -40,4 +45,21 @@ public class TopicService {
     public Topic updateTopic(Topic topic) {
         return topicRepository.save(topic);
     }
+
+    public List<Topic> getTopicsByBookIds(List<String> bookIds) {
+        return topicRepository.findByBookIdIn(bookIds);
+    }
+
+
+    public List<TopicDTO> getTopicsWithCommentCount(List<Topic> topics) {
+        return topics.stream()
+                .map(topic -> {
+                    int count = commentRepository.countByTopicId(topic.getId());
+                    return new TopicDTO(topic, count);
+                })
+                .toList();
+    }
+
+
+
 }

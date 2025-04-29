@@ -1,7 +1,10 @@
 package com.svalero.bookreaditapi.controller;
 
+import com.svalero.bookreaditapi.domain.DTO.TopicDTO;
 import com.svalero.bookreaditapi.domain.DTO.UserDTO;
+import com.svalero.bookreaditapi.domain.Topic;
 import com.svalero.bookreaditapi.domain.User;
+import com.svalero.bookreaditapi.service.TopicService;
 import com.svalero.bookreaditapi.service.UserService;
 import com.svalero.bookreaditapi.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,9 @@ public class UserController {
 
     @Autowired
     private SecurityUtils securityUtils;
+
+    @Autowired
+    private TopicService topicService;
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDTO> getUser(@PathVariable String userId) {
@@ -97,12 +103,35 @@ public class UserController {
     @GetMapping("/me/followed-books")
     public ResponseEntity<List<String>> getFollowedBooks(@AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
-        return ResponseEntity.ok(user.getFollowedBookIds());
+        List<String> books = user.getFollowedBookIds();
+        return ResponseEntity.ok(books != null ? books : List.of());
     }
+
 
     @GetMapping("/me/followed-tags")
     public ResponseEntity<List<String>> getFollowedTags(@AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
-        return ResponseEntity.ok(user.getFollowedTags());
+        List<String> tags = user.getFollowedTags();
+        return ResponseEntity.ok(tags != null ? tags : List.of());
     }
+
+    @GetMapping("/me/followed-topics")
+    public ResponseEntity<List<TopicDTO>> getTopicsFromFollowedBookPages(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = securityUtils.getCurrentUser(userDetails);
+        List<String> followedBookIds = user.getFollowedBookIds();
+
+        if (followedBookIds == null || followedBookIds.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        List<Topic> topics = topicService.getTopicsByBookIds(followedBookIds);
+        List<TopicDTO> topicsWithCounts = topicService.getTopicsWithCommentCount(topics);
+
+        return ResponseEntity.ok(topicsWithCounts);
+    }
+
 }
+
+

@@ -1,5 +1,6 @@
 package com.svalero.bookreaditapi.controller;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.svalero.bookreaditapi.domain.DTO.AuthRequest;
 import com.svalero.bookreaditapi.domain.DTO.RegisterRequest;
 import com.svalero.bookreaditapi.domain.User;
@@ -18,10 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,25 +38,43 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
-
-            String token = jwtUtil.generateToken(request.getUsername());
-            User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
-            response.put("username", user.getUsername());
-            response.put("role", user.getRole());
-
-            return ResponseEntity.ok(response);
-        } catch (BadCredentialsException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
+public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+    try {
+        String identifier = request.getIdentifier();
+        if (identifier == null || identifier.isBlank()) {
+            return ResponseEntity.badRequest().body("El identificador es obligatorio");
         }
+
+        Optional<User> userOpt = userRepository.findByUsername(identifier);
+        if (userOpt.isEmpty()) {
+            userOpt = userRepository.findByEmail(identifier);
+        }
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado");
+        }
+
+        User user = userOpt.get();
+
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword())
+        );
+
+        String token = jwtUtil.generateToken(user.getUsername());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("username", user.getUsername());
+        response.put("email", user.getEmail());
+        response.put("role", user.getRole());
+
+        return ResponseEntity.ok(response);
+
+    } catch (BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
     }
+}
+
 
 
     @PostMapping("/register")

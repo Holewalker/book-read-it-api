@@ -46,7 +46,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(comment);
     }
 
-    @GetMapping("/topic/{topicId}")
+    @GetMapping("/{topicId}")
     public ResponseEntity<List<Comment>> getCommentsByTopic(@PathVariable String topicId) {
         return ResponseEntity.ok(commentService.getCommentsByTopic(topicId));
     }

@@ -9,5 +9,8 @@ import java.util.List;
 @EnableScan
 public interface TopicRepository extends CrudRepository<Topic, String> {
     List<Topic> findByBookId(String bookId);
+
+    List<Topic> findByBookIdIn(List<String> bookIds);
+
 }
 

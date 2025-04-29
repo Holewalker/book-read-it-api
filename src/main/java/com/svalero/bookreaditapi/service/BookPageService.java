@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class BookPageService {
@@ -38,4 +39,13 @@ public class BookPageService {
     public void deleteBookPage(String bookId) {
         bookPageRepository.deleteById(bookId);
     }
+
+    public List<BookPage> getBooksByTag(String tag) {
+        List<BookPage> allBooks = (List<BookPage>) bookPageRepository.findAll();
+        return allBooks.stream()
+                .filter(book -> book.getTags() != null && book.getTags().contains(tag))
+                .collect(Collectors.toList());
+    }
+
+
 }

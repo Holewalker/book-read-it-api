@@ -1,5 +1,6 @@
 package com.svalero.bookreaditapi.controller;
 
+import com.svalero.bookreaditapi.domain.DTO.TopicDTO;
 import com.svalero.bookreaditapi.domain.Topic;
 import com.svalero.bookreaditapi.domain.User;
 import com.svalero.bookreaditapi.service.RoleValidatorService;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -41,7 +43,7 @@ public class TopicController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado");
         }
 
-        topic.setCreatorUserId(user.getId());
+        topic.setAuthorUserId(user.getId());
         topic.setCreatedAt(System.currentTimeMillis());
 
         Topic created = topicService.createTopic(topic);
@@ -49,8 +51,11 @@ public class TopicController {
     }
 
     @GetMapping("/book/{bookId}")
-    public List<Topic> getTopicsByBook(@PathVariable String bookId) {
-        return topicService.getTopicsByBookId(bookId);
+    public List<TopicDTO> getTopicsByBook(@PathVariable String bookId) {
+
+        List<Topic> topics = topicService.getTopicsByBookId(bookId);
+        List<TopicDTO> topicsWithCounts = topicService.getTopicsWithCommentCount(topics);
+        return topicsWithCounts;
     }
 
     @GetMapping("/{topicId}")
@@ -73,6 +78,7 @@ public class TopicController {
         }
 
         topic.setTitle(topicRequest.getTitle());
+        topic.setBody(topicRequest.getBody());
         return ResponseEntity.ok(topicService.updateTopic(topic));
     }
 
@@ -92,9 +98,16 @@ public class TopicController {
     }
 
     @GetMapping
-    public Iterable<Topic> getAllTopics() {
-        return topicService.getAllTopics();
+    public List<TopicDTO> getAllTopics() {
+        Iterable<Topic> topics = topicService.getAllTopics();
+
+        List<Topic> topicList = new ArrayList<>();
+        topics.forEach(topicList::add);
+
+        return topicService.getTopicsWithCommentCount(topicList);
     }
+
+
 }
 
 

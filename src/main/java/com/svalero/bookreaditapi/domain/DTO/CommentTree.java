@@ -1,24 +1,23 @@
 package com.svalero.bookreaditapi.domain.DTO;
 
-import com.svalero.bookreaditapi.domain.Comment;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommentTree {
-    private Comment comment;
+    private CommentDTO comment;
     private List<CommentTree> replies = new ArrayList<>();
 
     public CommentTree() {}
 
-    public CommentTree(Comment comment) {
+    public CommentTree(CommentDTO comment) {
         this.comment = comment;
     }
 
-    public Comment getComment() {
+    public CommentDTO getComment() {
         return comment;
     }
 
-    public void setComment(Comment comment) {
+    public void setComment(CommentDTO comment) {
         this.comment = comment;
     }
 

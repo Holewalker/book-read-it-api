@@ -10,7 +10,8 @@ public class Topic {
     private String id;
     private String bookId;
     private String title;
-    private String creatorUserId;
+    private String authorUserId;
+    private String body;
     private long createdAt;
 
     @DynamoDBHashKey(attributeName = "topicId")
@@ -40,13 +41,13 @@ public class Topic {
         this.title = title;
     }
 
-    @DynamoDBAttribute(attributeName = "creatorUserId")
-    public String getCreatorUserId() {
-        return creatorUserId;
+    @DynamoDBAttribute(attributeName = "authorUserId")
+    public String getAuthorUserId() {
+        return authorUserId;
     }
 
-    public void setCreatorUserId(String creatorUserId) {
-        this.creatorUserId = creatorUserId;
+    public void setAuthorUserId(String authorUserId) {
+        this.authorUserId = authorUserId;
     }
 
     @DynamoDBAttribute(attributeName = "createdAt")
@@ -57,4 +58,16 @@ public class Topic {
     public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
+
+
+    @DynamoDBAttribute(attributeName = "body")
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+
 }

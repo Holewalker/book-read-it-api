@@ -57,6 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/topics/**",
                         "/api/comments/**",
                         "/api/tags/**"
+
                 ).permitAll()
                 .antMatchers("/api/auth/**").permitAll()
                 .anyRequest().authenticated()
