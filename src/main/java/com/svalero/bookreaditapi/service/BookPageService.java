@@ -3,6 +3,9 @@ package com.svalero.bookreaditapi.service;
 import com.svalero.bookreaditapi.domain.BookPage;
 import com.svalero.bookreaditapi.repository.BookPageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +31,12 @@ public class BookPageService {
     public Iterable<BookPage> getAllBookPages() {
         return bookPageRepository.findAll();
     }
+
+
+    public Page<BookPage> getPaginatedBooks(Pageable pageable) {
+        return bookPageRepository.findAll(pageable);
+    }
+
 
     public List<BookPage> searchByTitle(String title) {
         if (title == null || title.isBlank()) {

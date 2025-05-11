@@ -6,6 +6,9 @@ import com.svalero.bookreaditapi.service.BookPageService;
 import com.svalero.bookreaditapi.service.RoleValidatorService;
 import com.svalero.bookreaditapi.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -56,11 +59,21 @@ public class BookPageController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
     @GetMapping
     public Iterable<BookPage> getAllBookPages() {
         return bookPageService.getAllBookPages();
     }
 
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<BookPage>> getPaginatedBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookPage> paginatedBooks = bookPageService.getPaginatedBooks(pageable);
+        return ResponseEntity.ok(paginatedBooks);
+    }
 
     @GetMapping("/me/followed-books")
     public ResponseEntity<List<BookPage>> getFollowedBooks(@AuthenticationPrincipal UserDetails userDetails) {
