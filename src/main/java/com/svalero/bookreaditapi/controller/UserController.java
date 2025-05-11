@@ -81,6 +81,13 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/me/followed-books-list")
+    public ResponseEntity<List<String>> getFollowedBooks(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = securityUtils.getCurrentUser(userDetails);
+        List<String> books = user.getFollowedBookIds();
+        return ResponseEntity.ok(books != null ? books : List.of());
+    }
+
 
     @PutMapping("/me/follow-tag/{tag}")
     public ResponseEntity<Void> followTag(@AuthenticationPrincipal UserDetails userDetails,
@@ -96,15 +103,6 @@ public class UserController {
         User user = securityUtils.getCurrentUser(userDetails);
         userService.unfollowTag(user.getId(), tag);
         return ResponseEntity.ok().build();
-    }
-
-    // ---- CONSULTA DE FOLLOW ----
-
-    @GetMapping("/me/followed-books")
-    public ResponseEntity<List<String>> getFollowedBooks(@AuthenticationPrincipal UserDetails userDetails) {
-        User user = securityUtils.getCurrentUser(userDetails);
-        List<String> books = user.getFollowedBookIds();
-        return ResponseEntity.ok(books != null ? books : List.of());
     }
 
 

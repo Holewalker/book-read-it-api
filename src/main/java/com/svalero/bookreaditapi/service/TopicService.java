@@ -60,6 +60,9 @@ public class TopicService {
                 .toList();
     }
 
+    public List<Topic> getTopicsByUserId(String userId) {
+        return topicRepository.findByAuthorUserId(userId);
+    }
 
 
 }

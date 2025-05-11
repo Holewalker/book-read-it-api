@@ -12,5 +12,8 @@ public interface TopicRepository extends CrudRepository<Topic, String> {
 
     List<Topic> findByBookIdIn(List<String> bookIds);
 
+    List<Topic> findByAuthorUserId(String userId);
+
+
 }
 

@@ -11,6 +11,9 @@ public class UserDTO {
     private List<String> followedBookIds;
     private List<String> followedTags;
 
+    public UserDTO() {
+    }
+
     public UserDTO(User user) {
         this.userId = user.getId();
         this.username = user.getUsername();

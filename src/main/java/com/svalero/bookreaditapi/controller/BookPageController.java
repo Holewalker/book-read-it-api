@@ -13,7 +13,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/book-pages")
@@ -33,9 +35,19 @@ public class BookPageController {
                                                    @AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
         bookPage.setOwnerUserId(user.getId());
+
+        if (bookPage.getTags() != null) {
+            List<String> lowerTags = bookPage.getTags()
+                    .stream()
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList());
+            bookPage.setTags(lowerTags);
+        }
+
         BookPage created = bookPageService.createBookPage(bookPage);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
 
     @GetMapping("/{bookId}")
     public ResponseEntity<BookPage> getBookPage(@PathVariable String bookId) {
@@ -48,6 +60,24 @@ public class BookPageController {
     public Iterable<BookPage> getAllBookPages() {
         return bookPageService.getAllBookPages();
     }
+
+
+    @GetMapping("/me/followed-books")
+    public ResponseEntity<List<BookPage>> getFollowedBooks(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = securityUtils.getCurrentUser(userDetails);
+        List<String> bookIds = user.getFollowedBookIds();
+        if (bookIds == null || bookIds.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        List<BookPage> books = new ArrayList<>();
+        for (String id : bookIds) {
+            bookPageService.getBookPageById(id).ifPresent(books::add);
+        }
+
+        return ResponseEntity.ok(books);
+    }
+
 
     @GetMapping("/search")
     public List<BookPage> searchByTitle(@RequestParam String title) {

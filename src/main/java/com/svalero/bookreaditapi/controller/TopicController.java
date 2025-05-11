@@ -3,6 +3,7 @@ package com.svalero.bookreaditapi.controller;
 import com.svalero.bookreaditapi.domain.DTO.TopicDTO;
 import com.svalero.bookreaditapi.domain.Topic;
 import com.svalero.bookreaditapi.domain.User;
+import com.svalero.bookreaditapi.repository.TopicRepository;
 import com.svalero.bookreaditapi.service.RoleValidatorService;
 import com.svalero.bookreaditapi.service.TopicService;
 import com.svalero.bookreaditapi.service.BookPageService;
@@ -105,6 +106,21 @@ public class TopicController {
         topics.forEach(topicList::add);
 
         return topicService.getTopicsWithCommentCount(topicList);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TopicDTO>> getTopicsByUserId(@PathVariable String userId) {
+        List<Topic> topics = topicService.getTopicsByUserId(userId);
+        List<TopicDTO> topicsDTO = topicService.getTopicsWithCommentCount(topics);
+        return ResponseEntity.ok(topicsDTO);
+    }
+    @Autowired
+    private TopicRepository topicRepository;
+
+
+    @GetMapping("/debug/topics")
+    public List<Topic> debugTopics() {
+        return (List<Topic>) topicRepository.findAll();
     }
 
 
