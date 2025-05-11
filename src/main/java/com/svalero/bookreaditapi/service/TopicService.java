@@ -27,7 +27,7 @@ public class TopicService {
     }
 
     public Iterable<Topic> getAllTopics() {
-        return topicRepository.findAll();
+        return topicRepository.findAllOrderedByCreatedAtDesc();
     }
 
     public Optional<Topic> getTopicById(String topicId) {
