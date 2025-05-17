@@ -70,11 +70,17 @@ public class TopicController {
     public ResponseEntity<?> updateTopic(@PathVariable String topicId,
                                          @RequestBody Topic topicRequest,
                                          @AuthenticationPrincipal UserDetails userDetails) {
+        System.out.println("Updating topic with ID: " + topicId);
+        System.out.println("Request body: " + topicRequest);
+        System.out.println("User details: " + userDetails);
+        System.out.println("User ID: " + userDetails.getUsername());
+        System.out.println("User ID from security utils: " + securityUtils.getCurrentUser(userDetails).getId());
         User user = securityUtils.getCurrentUser(userDetails);
         Topic topic = topicService.getTopicById(topicId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getId(), List.of("OWNER", "MODERATOR"))) {
+        if (!topic.getAuthorUserId().equals(user.getId()) &&
+                !roleValidator.hasAnyRole(topic.getBookId(), user.getId(), List.of("OWNER", "MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para editar este tema.");
         }
 
@@ -90,7 +96,8 @@ public class TopicController {
         Topic topic = topicService.getTopicById(topicId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!roleValidator.hasAnyRole(topic.getBookId(), user.getId(), List.of("OWNER", "MODERATOR"))) {
+        if (!topic.getAuthorUserId().equals(user.getId()) &&
+                !roleValidator.hasAnyRole(topic.getBookId(), user.getId(), List.of("OWNER", "MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para eliminar este tema.");
         }
 
@@ -114,6 +121,7 @@ public class TopicController {
         List<TopicDTO> topicsDTO = topicService.getTopicsWithCommentCount(topics);
         return ResponseEntity.ok(topicsDTO);
     }
+
     @Autowired
     private TopicRepository topicRepository;
 

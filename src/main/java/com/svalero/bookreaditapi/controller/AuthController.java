@@ -64,6 +64,7 @@ public ResponseEntity<?> login(@RequestBody AuthRequest request) {
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
+        response.put("id", user.getId());
         response.put("username", user.getUsername());
         response.put("email", user.getEmail());
         response.put("role", user.getRole());

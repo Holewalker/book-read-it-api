@@ -9,13 +9,24 @@ public class TopicDTO {
     private String bookId;
     private long createdAt;
     private int commentCount;
+    private String authorUserId;
 
     public TopicDTO(Topic topic, int commentCount) {
         this.id = topic.getId();
         this.title = topic.getTitle();
         this.bookId = topic.getBookId();
         this.createdAt = topic.getCreatedAt();
+        this.body = topic.getBody();
+        this.authorUserId = topic.getAuthorUserId();
         this.commentCount = commentCount;
+    }
+
+    public String getAuthorUserId() {
+        return authorUserId;
+    }
+
+    public void setAuthorUserId(String authorUserId) {
+        this.authorUserId = authorUserId;
     }
 
     public String getId() {
@@ -57,9 +68,11 @@ public class TopicDTO {
     public void setCommentCount(int commentCount) {
         this.commentCount = commentCount;
     }
+
     public String getBody() {
         return body;
     }
+
     public void setBody(String body) {
         this.body = body;
     }
