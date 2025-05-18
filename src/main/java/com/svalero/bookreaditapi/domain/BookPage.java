@@ -14,6 +14,8 @@ public class BookPage {
     private String title;
     private String ownerUserId;
     private List<String> tags;
+    private String lowercaseTitle;
+
 
     @DynamoDBHashKey(attributeName = "bookId")
     public String getId() {
@@ -59,4 +61,15 @@ public class BookPage {
     public void setTags(List<String> tags) {
         this.tags = tags;
     }
+
+    @DynamoDBAttribute(attributeName = "lowercaseTitle")
+    public String getLowercaseTitle() {
+        return lowercaseTitle;
+    }
+
+    public void setLowercaseTitle(String lowercaseTitle) {
+        this.lowercaseTitle = lowercaseTitle;
+    }
+
+
 }

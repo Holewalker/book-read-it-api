@@ -14,7 +14,7 @@ import java.util.List;
 @EnableScanCount
 public interface BookPageRepository extends PagingAndSortingRepository<BookPage, String> {
     List<BookPage> findByTitleContaining(String title);
-
+    List<BookPage> findByLowercaseTitleContaining(String title);
 
     Page<BookPage> findAll(Pageable pageable);
 

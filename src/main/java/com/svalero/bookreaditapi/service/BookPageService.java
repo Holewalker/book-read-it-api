@@ -21,6 +21,7 @@ public class BookPageService {
 
     public BookPage createBookPage(BookPage bookPage) {
         bookPage.setId(UUID.randomUUID().toString());
+        bookPage.setLowercaseTitle(bookPage.getTitle().toLowerCase());
         return bookPageRepository.save(bookPage);
     }
 
@@ -42,7 +43,7 @@ public class BookPageService {
         if (title == null || title.isBlank()) {
             return List.of();
         }
-        return bookPageRepository.findByTitleContaining(title);
+        return bookPageRepository.findByLowercaseTitleContaining(title.toLowerCase());
     }
 
     public void deleteBookPage(String bookId) {

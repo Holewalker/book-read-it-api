@@ -1,12 +1,14 @@
 package com.svalero.bookreaditapi.controller;
 
 import com.svalero.bookreaditapi.domain.BookPage;
+import com.svalero.bookreaditapi.domain.Topic;
 import com.svalero.bookreaditapi.domain.User;
 import com.svalero.bookreaditapi.service.BookPageService;
 import com.svalero.bookreaditapi.service.RoleValidatorService;
 import com.svalero.bookreaditapi.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,8 +18,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.awt.print.Book;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -75,6 +80,32 @@ public class BookPageController {
         return ResponseEntity.ok(paginatedBooks);
     }
 
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<BookPage>> searchBooks(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        List<BookPage> byTitle = bookPageService.searchByTitle(query);
+        List<BookPage> byTag = bookPageService.getBooksByTag(query);
+
+        Set<BookPage> combined = new HashSet<>();
+        combined.addAll(byTitle);
+        combined.addAll(byTag);
+
+        List<BookPage> combinedList = new ArrayList<>(combined);
+
+        // Crear paginación manualmente
+        int start = Math.min(page * size, combinedList.size());
+        int end = Math.min(start + size, combinedList.size());
+        List<BookPage> pagedList = combinedList.subList(start, end);
+
+        Page<BookPage> pageResult = new PageImpl<>(pagedList, PageRequest.of(page, size), combinedList.size());
+
+        return ResponseEntity.ok(pageResult);
+    }
+
     @GetMapping("/me/followed-books")
     public ResponseEntity<List<BookPage>> getFollowedBooks(@AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
@@ -91,11 +122,6 @@ public class BookPageController {
         return ResponseEntity.ok(books);
     }
 
-
-    @GetMapping("/search")
-    public List<BookPage> searchByTitle(@RequestParam String title) {
-        return bookPageService.searchByTitle(title);
-    }
 
     @DeleteMapping("/{bookId}")
     public ResponseEntity<Void> deleteBookPage(@PathVariable String bookId,
@@ -116,4 +142,30 @@ public class BookPageController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{bookId}")
+    public ResponseEntity<?> updateBookTags(@PathVariable String bookId,
+                                            @RequestBody List<String> tags,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = securityUtils.getCurrentUser(userDetails);
+        BookPage bookPage = bookPageService.getBookPageById(bookId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
+
+
+        boolean isOwner = roleValidator.isOwner(bookId, user.getId());
+        boolean isAdmin = "ADMIN".equals(user.getRole());
+        if (!isOwner && !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para modificar los tags de este libro.");
+        }
+
+
+        List<String> normalizedTags = tags.stream()
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .filter(tag -> !tag.isEmpty())
+                .toList();
+
+        bookPage.setTags(normalizedTags);
+        BookPage updated = bookPageService.createBookPage(bookPage); // reutiliza create como upsert. cosas de dynamodb
+        return ResponseEntity.ok(updated);
+    }
 }

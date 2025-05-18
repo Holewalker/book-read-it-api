@@ -70,11 +70,7 @@ public class TopicController {
     public ResponseEntity<?> updateTopic(@PathVariable String topicId,
                                          @RequestBody Topic topicRequest,
                                          @AuthenticationPrincipal UserDetails userDetails) {
-        System.out.println("Updating topic with ID: " + topicId);
-        System.out.println("Request body: " + topicRequest);
-        System.out.println("User details: " + userDetails);
-        System.out.println("User ID: " + userDetails.getUsername());
-        System.out.println("User ID from security utils: " + securityUtils.getCurrentUser(userDetails).getId());
+
         User user = securityUtils.getCurrentUser(userDetails);
         Topic topic = topicService.getTopicById(topicId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
