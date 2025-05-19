@@ -2,6 +2,7 @@ package com.svalero.bookreaditapi.domain;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 @DynamoDBTable(tableName = "Notifications")
@@ -12,6 +13,9 @@ public class Notification {
     private String message;
     private boolean read;
     private Long createdAt;
+    private String topicId;
+    private String bookId;
+
 
     @DynamoDBHashKey(attributeName = "notificationId")
     public String getId() {
@@ -22,7 +26,7 @@ public class Notification {
         this.id = id;
     }
 
-    @DynamoDBAttribute(attributeName = "userId")
+    @DynamoDBIndexHashKey(globalSecondaryIndexName = "userId-index", attributeName = "userId")
     public String getUserId() {
         return userId;
     }
@@ -56,6 +60,25 @@ public class Notification {
 
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @DynamoDBAttribute(attributeName = "topicId")
+    public String getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(String topicId) {
+        this.topicId = topicId;
+    }
+
+
+    @DynamoDBAttribute(attributeName = "bookId")
+    public String getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(String bookId) {
+        this.bookId = bookId;
     }
 }
 

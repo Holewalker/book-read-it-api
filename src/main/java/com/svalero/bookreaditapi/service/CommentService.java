@@ -18,6 +18,8 @@ public class CommentService {
     @Autowired
     private TopicService topicService;
     @Autowired
+    private BookPageService bookPageService;
+    @Autowired
     private CommentRepository commentRepository;
     @Autowired
     private UserRepository userRepository;
@@ -52,11 +54,14 @@ public class CommentService {
                 notifiedUserIds.add(topic.getAuthorUserId());
             }
         });
-
+        String bookId = topicService.getTopicById(comment.getTopicId()).get().getBookId();
         for (String userId : notifiedUserIds) {
             notificationService.createNotification(
                     userId,
-                    "Nuevo comentario en una conversación en la que participas."
+                    "Nuevo comentario en un tema  de \"" + bookPageService.getBookPageById(bookId).get().getTitle()+"\" en el que has participado",
+                    comment.getTopicId(),
+                    bookId
+
             );
         }
 

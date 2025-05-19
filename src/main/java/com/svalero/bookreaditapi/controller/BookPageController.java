@@ -165,7 +165,6 @@ public class BookPageController {
         BookPage bookPage = bookPageService.getBookPageById(bookId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
 
-        System.out.println(bookId+ " " +user.getId());
         boolean isOwner = roleValidator.isOwner(bookId, user.getId());
         boolean isAdmin = "ADMIN".equals(user.getRole());
         if (!isOwner && !isAdmin) {
