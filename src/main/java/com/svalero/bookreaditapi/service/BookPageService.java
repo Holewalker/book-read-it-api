@@ -25,6 +25,10 @@ public class BookPageService {
         return bookPageRepository.save(bookPage);
     }
 
+    public BookPage updateBook(BookPage bookPage) {
+    return bookPageRepository.save(bookPage);
+}
+
     public Optional<BookPage> getBookPageById(String bookId) {
         return bookPageRepository.findById(bookId);
     }

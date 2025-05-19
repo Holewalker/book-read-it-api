@@ -181,7 +181,7 @@ public class BookPageController {
                 .toList();
 
         bookPage.setTags(normalizedTags);
-        BookPage updated = bookPageService.createBookPage(bookPage); // reutiliza create como upsert. cosas de dynamodb
+        BookPage updated = bookPageService.updateBook(bookPage); // reutiliza create como upsert. cosas de dynamodb. OJO con el uuid
         return ResponseEntity.ok(updated);
     }
 }
