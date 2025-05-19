@@ -1,9 +1,11 @@
 package com.svalero.bookreaditapi.controller;
 
 import com.svalero.bookreaditapi.domain.BookPage;
+import com.svalero.bookreaditapi.domain.RoleAssignment;
 import com.svalero.bookreaditapi.domain.Topic;
 import com.svalero.bookreaditapi.domain.User;
 import com.svalero.bookreaditapi.service.BookPageService;
+import com.svalero.bookreaditapi.service.RoleAssignmentService;
 import com.svalero.bookreaditapi.service.RoleValidatorService;
 import com.svalero.bookreaditapi.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.awt.print.Book;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,26 +32,42 @@ public class BookPageController {
     private BookPageService bookPageService;
 
     @Autowired
+    private RoleAssignmentService roleAssignmentService;
+
+    @Autowired
     private RoleValidatorService roleValidator;
 
     @Autowired
     private SecurityUtils securityUtils;
 
+
+
     @PostMapping
     public ResponseEntity<BookPage> createBookPage(@RequestBody BookPage bookPage,
                                                    @AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
-        bookPage.setOwnerUserId(user.getId());
 
+        // Forzamos lowercase a las tags
         if (bookPage.getTags() != null) {
-            List<String> lowerTags = bookPage.getTags()
-                    .stream()
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
+            List<String> lowerTags = bookPage.getTags().stream()
+                .map(String::toLowerCase)
+                .distinct()
+                .collect(Collectors.toList());
             bookPage.setTags(lowerTags);
         }
 
+        // Set owner
+        bookPage.setOwnerUserId(user.getId());
         BookPage created = bookPageService.createBookPage(bookPage);
+
+        // Crear rol OWNER para el usuario que lo crea
+        RoleAssignment role = new RoleAssignment();
+        role.setId(UUID.randomUUID().toString());
+        role.setUserId(user.getId());
+        role.setBookId(created.getId());
+        role.setRole("OWNER");
+        roleAssignmentService.saveRole(role);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -150,11 +165,12 @@ public class BookPageController {
         BookPage bookPage = bookPageService.getBookPageById(bookId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
 
-
+        System.out.println(bookId+ " " +user.getId());
         boolean isOwner = roleValidator.isOwner(bookId, user.getId());
         boolean isAdmin = "ADMIN".equals(user.getRole());
         if (!isOwner && !isAdmin) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para modificar los tags de este libro.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para modificar los tags de este libro. " + "" +
+                    "Eres el propietario del libro? " + isOwner + " Eres admin? " + isAdmin);
         }
 
 
