@@ -51,25 +51,26 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getCommentsByTopic(topicId));
     }
 
-    @PutMapping("/{commentId}")
-    public ResponseEntity<?> updateComment(@PathVariable String commentId,
-                                           @RequestBody Comment updated,
-                                           @AuthenticationPrincipal UserDetails userDetails) {
+    @PutMapping("/{commentId}/delete")
+    public ResponseEntity<?> softDeleteComment(@PathVariable String commentId,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
         User user = securityUtils.getCurrentUser(userDetails);
-        Comment existing = commentService.getCommentById(commentId)
+        Comment comment = commentService.getCommentById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        Topic topic = topicService.getTopicById(existing.getTopicId())
+        Topic topic = topicService.getTopicById(comment.getTopicId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (!roleValidator.hasAnyRole(topic.getBookId(), user.getId(), List.of("OWNER", "MODERATOR"))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para editar comentarios.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No autorizado para eliminar comentarios.");
         }
+        comment.setBody("[deleted]");
+        comment.setAuthorUserId(null); // Clear author to indicate deletion
+        commentService.updateComment(comment);
 
-        existing.setBody(updated.getBody());
-        commentService.updateComment(existing);
-        return ResponseEntity.ok(existing);
+        return ResponseEntity.ok().build();
     }
+
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<?> deleteComment(@PathVariable String commentId,

@@ -11,7 +11,15 @@ import java.util.Optional;
 @EnableScan
 public interface RoleAssignmentRepository extends CrudRepository<RoleAssignment, String> {
     List<RoleAssignment> findByBookId(String bookId);
+
     List<RoleAssignment> findByUserId(String userId);
+
     Optional<RoleAssignment> findByBookIdAndUserId(String bookId, String userId);
+
+    void deleteByUserId(String id);
+
+    List<RoleAssignment> findAllByBookId(String bookId);
+
 }
+
 

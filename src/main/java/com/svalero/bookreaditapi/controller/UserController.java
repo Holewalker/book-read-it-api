@@ -36,6 +36,13 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{userid}/username")
+    public ResponseEntity<String> getUsernameById(@PathVariable("userid") String userId) {
+        return userService.getUsernameById(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/username/{username}")
     public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
         return userService.getUserByUsername(username)

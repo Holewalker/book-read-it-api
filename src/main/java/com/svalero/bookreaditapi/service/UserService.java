@@ -26,6 +26,11 @@ public class UserService {
                 .map(user -> modelMapper.map(user, UserDTO.class));
     }
 
+    public Optional<String> getUsernameById(String userId) {
+        return userRepository.findById(userId)
+                .map(User::getUsername);
+    }
+
     public Optional<UserDTO> getUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .map(user -> modelMapper.map(user, UserDTO.class));
