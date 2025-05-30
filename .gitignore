@@ -38,7 +38,7 @@ mvnw
 mvnw.cmd
 
 .mvn
-
+aws.env
 /src/test/*
 
 # Elastic Beanstalk Files
