@@ -2,6 +2,7 @@ package com.svalero.bookreaditapi.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -24,7 +25,8 @@ public class DynamoDBConfig {
 
     @Value("${aws.dynamodb.region}")
     private String region;
-
+/*
+    //LOCAL
     @Value("${aws.dynamodb.accessKey}")
     private String accessKey;
 
@@ -36,7 +38,22 @@ public class DynamoDBConfig {
         return AmazonDynamoDBClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+                //.withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
                 .build();
     }
+*/
 
+    //Credenciales AWS
+    @Bean
+public AmazonDynamoDB amazonDynamoDB(
+        @Value("${aws.dynamodb.endpoint}") String endpoint,
+        @Value("${aws.dynamodb.region}") String region) {
+
+    return AmazonDynamoDBClientBuilder.standard()
+        .withEndpointConfiguration(
+            new AwsClientBuilder.EndpointConfiguration(endpoint, region)
+        )
+        .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
+        .build();
+}
 }
