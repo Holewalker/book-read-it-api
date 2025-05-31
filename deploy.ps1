@@ -14,9 +14,13 @@ Get-Content $envFile | ForEach-Object {
         Set-Variable -Name $key -Value $value
     }
 }
+# Mostrar las claves cargadas
+Write-Host "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+Write-Host "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
 
 $awsAccessKey = $AWS_ACCESS_KEY_ID
 $awsSecretKey = $AWS_SECRET_ACCESS_KEY
+
 
 Write-Host "1. Limpiando y compilando el proyecto..."
 mvn clean package
@@ -56,7 +60,7 @@ gcloud run deploy $imageName `
   --allow-unauthenticated `
   --port 8080 `
   --memory 512Mi `
-  --set-env-vars AWS_ACCESS_KEY_ID=$awsAccessKey,AWS_SECRET_ACCESS_KEY=$awsSecretKey
+  --set-env-vars "AWS_ACCESS_KEY_ID=$awsAccessKey,AWS_SECRET_ACCESS_KEY=$awsSecretKey"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: Falló el despliegue en Cloud Run. Revisa los errores para más información." 
