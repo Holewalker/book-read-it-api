@@ -56,7 +56,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/book-pages/**",
                         "/api/topics/**",
                         "/api/comments/**",
-                        "/api/tags/**"
+                        "/api/tags/**",
+                        "/api/users/**"
 
                 ).permitAll()
                 .antMatchers("/api/auth/**").permitAll()
@@ -78,8 +79,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",         // Para desarrollo local
-                "http://192.168.*.*"          // Para cualquier IP local
+                "http://localhost:*",           // Para desarrollo local
+                "http://192.168.*.*",           // Para cualquier IP local
+                "http://bookreadit-frontend-dani.s3-website-eu-west-1.amazonaws.com" //para amazon s3
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

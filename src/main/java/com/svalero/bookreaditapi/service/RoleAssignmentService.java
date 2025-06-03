@@ -30,6 +30,6 @@ public class RoleAssignmentService {
     }
 
     public void deleteById(String id) {
-        roleAssignmentRepository.deleteByUserId(id);
+        roleAssignmentRepository.deleteById(id);
     }
 }

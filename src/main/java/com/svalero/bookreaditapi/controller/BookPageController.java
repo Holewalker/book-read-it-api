@@ -91,7 +91,7 @@ public class BookPageController {
             @RequestParam(defaultValue = "5") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<BookPage> paginatedBooks = bookPageService.getPaginatedBooks(pageable);
+        Page<BookPage> paginatedBooks = bookPageService.getPaginatedBooksOrderedByTopicCount(pageable);
         return ResponseEntity.ok(paginatedBooks);
     }
 
