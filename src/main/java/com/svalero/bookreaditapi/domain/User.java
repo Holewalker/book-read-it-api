@@ -1,54 +1,84 @@
 package com.svalero.bookreaditapi.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import lombok.ToString;
 import java.util.List;
-import java.util.Set;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity(name = "user")
+@DynamoDBTable(tableName = "Users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
-
-    @Column(unique = true)
-    @NotBlank(message = "El nombre de usuario no puede estar vacio")
-    @NotNull(message = "El nombre de usuario es obligatorio")
+    private String id;
     private String username;
-
-    @NotBlank(message = "La contraseña no puede estar vacia")
-    @NotNull(message = "La contraseña es obligatoria")
-    private String password;
-
-    @Column
-    @NotBlank(message = "El correo electrónico no puede estar vacío")
-    @NotNull(message = "El correo electrónico es obligatorio")
     private String email;
+    private List<String> followedBookIds;
+    private List<String> followedTags;
+    private String password;
+    private String role;
 
-    @ManyToMany
-    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    @DynamoDBHashKey(attributeName = "userId")
+    public String getId() {
+        return id;
+    }
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "userPost")
-    @JsonBackReference(value = "post_id")
-    private List<Post> posts;
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "userReply")
-    @JsonBackReference(value = "reply_id")
-    private List<Reply> replies;
+    @DynamoDBAttribute(attributeName = "username")
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @DynamoDBAttribute(attributeName = "email")
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @DynamoDBAttribute(attributeName = "followedBookIds")
+    public List<String> getFollowedBookIds() {
+        return followedBookIds;
+    }
+
+    public void setFollowedBookIds(List<String> followedBookIds) {
+        this.followedBookIds = followedBookIds;
+    }
+
+    @DynamoDBAttribute(attributeName = "followedTags")
+    public List<String> getFollowedTags() {
+        return followedTags;
+    }
+
+    public void setFollowedTags(List<String> followedTags) {
+        this.followedTags = followedTags;
+    }
+
+    @DynamoDBAttribute(attributeName = "password")
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @DynamoDBAttribute(attributeName = "role")
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
 
 }

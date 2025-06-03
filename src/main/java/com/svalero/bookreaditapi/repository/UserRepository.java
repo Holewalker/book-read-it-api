@@ -1,15 +1,14 @@
 package com.svalero.bookreaditapi.repository;
 
 import com.svalero.bookreaditapi.domain.User;
+import org.socialsignin.spring.data.dynamodb.repository.EnableScan;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
-@Repository
-public interface UserRepository extends CrudRepository<User, Long> {
-    List<User> findAll();
+@EnableScan
+public interface UserRepository extends CrudRepository<User, String> {
+    Optional<User> findByUsername(String username);
 
-    User findByUsername(String username);
-
+    Optional<User> findByEmail(String email);
 }
